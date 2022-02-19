@@ -4,14 +4,14 @@ title: About
 permalink: /about/
 ---
 
-A medium inspired Jekyll blog theme. The basic idea came from the Ghost theme 
-[Readium 2.0](http://www.svenread.com/readium-ghost-theme/). I use mediator on my own blog [The Base](blog.base68.com).
+Welcome to my blog!
 
-You can **download** the theme here:
-[https://github.com/dirkfabisch/mediator](https://github.com/dirkfabisch/mediator) 
+I am Gourav Singh Bajeli , currently pursuing UG in AIE at Amrita school of Engineering,Kollam.
 
-You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](http://jekyllrb.com/)
 
-You can find the source code for the Jekyll new theme at: [github.com/jglovier/jekyll-new](https://github.com/jglovier/jekyll-new)
+I am an active CTF player and current team lead of team [bi0s](https://ctftime.org/team/662), my main focus is Reverse Engineering and Exploitaion but also indulges in other categories like cryptography,web etc.
 
-You can find the source code for Jekyll at [github.com/jekyll/jekyll](https://github.com/jekyll/jekyll)
+I also have experience in game dev/reversing as well as android reversing.I am currently working on various methods of android exploitation using Frida and documenting it in this blog.
+
+
+As an UG pursuing my degree in AIE i am quite familiar with DL and NLP in image/text processing.I have various projects related to image processing ,text processing and many more topics related to AI in my github [repo](https://github.com/fug1t1ve).
