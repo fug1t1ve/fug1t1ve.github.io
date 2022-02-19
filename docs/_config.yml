@@ -29,7 +29,7 @@ twitter_username: fug1t1v31
 github_username:  fug1t1ve
 
 # Build settings
-theme: minima
+theme: jekyll-theme-hacker
 plugins:
   - jekyll-feed
 
