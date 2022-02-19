@@ -18,17 +18,39 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: fug1t1ve blogs
+title: "fug1t1ve blogs"
 email: gbajeli36@gmail.com
+logo: "/assets/images/logo.jpg"
+cover: "/assets/images/cover.jpg"
+name: "fug1t1ve"
+author: "fug1t1ve"
+author_image: "/assets/images/author.jpg"
+
+paginate: 5
+
 description: >- # this means to ignore newlines until "baseurl:"
   Blog that will introduce you to some of the interesting topics of Reverse Engineering
 domain: fug1t1ve.github.io
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://fug1t1ve.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: fug1t1v31
-github_username:  fug1t1ve
+twitter_handle: "@fug1t1v31"
+
+social:
+  - icon: twitter
+    url: https://twitter.com/fug1t1v31
+    desc: Follow me on twitter
+    share_url: http://twitter.com/share
+    share_title: ?text=
+    share_link: "&amp;url="
+  
+  - icon: github
+    url: https://github.com/fug1t1ve
+    desc: follow me on github for some cool RE repos
 
 # Build settings
+gems:
+  - jemoji
+  - jekyll-paginate
 theme: minima
 plugins:
   - jekyll-feed
