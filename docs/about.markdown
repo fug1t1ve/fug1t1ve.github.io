@@ -4,15 +4,14 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+Welcome to my blog!
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+I am Gourav Singh Bajeli , Currently pursuing UG in AIE at Amrita school of Engineering,kollam.
 
 
-[jekyll-organization]: https://github.com/jekyll
+I am a Active CTF player and current team lead of team [bi0s](https://ctftime.org/team/662), My main focus is Reverse Engineering and Exploitaion but also indulges in other categories like cryptography,web,etc.
+
+I also have experience in Game dev/reversing as well as android reversing.I am currently working on various methods of android exploitation using Frida and documenting it in this blog.
+
+
+As an UG pursuing my degree in AIE i am quite familiar with DL and NLP in image/text processing.I have various projects related to image processing ,text processing and many more topics related to AI in my github [repo](https://github.com/fug1t1ve).
