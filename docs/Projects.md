@@ -1,8 +1,7 @@
 ---
-layout: post
-titile: "Projects"
-date: 2022-08-30 14:30:00 +5:30
-categories: HTML,CSS,JS
+layout: page
+title: My_Projects
+permalink: /Projects/
 ---
 # About:
 - Gourav Singh Bajeli
