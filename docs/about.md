@@ -16,7 +16,7 @@ During my internship as an N-day Research Advocate at Exodus Intelligence, I had
 
 Overall, my involvement with [bi0s](https://ctftime.org/team/662), active participation in Capture The Flag competitions, expertise in reverse engineering and vulnerability research, and experience as an N-day Research Advocate have all contributed to my well-rounded skill set and passion for tackling cybersecurity challenges.
 
-As a current undergraduate student pursuing a degree in Artificial Intelligence and Entertainment (AIE), I have gained significant expertise in deep learning (DL) and natural language processing (NLP) for image and text processing tasks. 
+As a current undergraduate student pursuing a degree in Artificial Intelligence Engineering (AIE), I have gained significant expertise in deep learning (DL) and natural language processing (NLP) for image and text processing tasks. 
 
 My GitHub repository is a rich collection of projects that cover a wide range of artificial intelligence topics, including machine learning, computer vision, natural language processing, and other relevant areas. It also includes projects related to cyber-security, specifically focusing on critical aspects like fuzzing and reverse engineering. 
 
