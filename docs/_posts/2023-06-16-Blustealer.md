@@ -209,6 +209,7 @@ The `text3` is then used by four methods:
 - `kHaSXGF4djgFPmfQAx.irt5FtGhEP(text3)` also seems to access the [DirectorySecurity](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.directorysecurity?view=net-7.0) but in this method it can be seen that it is modifying various permissions like Read, ReadAndExecute, Delete, Write, and many more.
 ![](https://imgur.com/gallery/Hgf1dLB)
 - `kHaSXGF4djgFPmfQAx.NA75tJjKiO()` generates a xml file:
+
 ```xml
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
@@ -258,6 +259,7 @@ The `text3` is then used by four methods:
   </Actions>
 </Task>
 ```
+
 On line 145, the function uses "schtasks.exe" along with a command `/Create /TN ""Updates\IvsnIzxmCcG"" /XML ""C:\Users\IEUser\AppData\Local\Temp\tmp75E.tmp""`.
 This registers a scheduled task
 ![](https://imgur.com/gallery/M9dpdNY)
@@ -341,9 +343,11 @@ In `sub_46869E`:
 - It copies the "AfzZZiYOhxgugZpWKhFfrXlnUzmtlItt" 8 times and stores at the address `0x0A21150`. 
 - The memory address `0x0A20648` contains 256 bytes arranged in ascending order from 0 to 255.
 - In the next loop, it performs this operation:
+
 ```c
 *(0x0A20648+index) = (*(0x0A20648+index) + *(0x0A20648+index-1) + *(0x0A21150+index))%256
 ```
+
 - The third loop uses this modified array and performs the XOR operation and generate the string "WScript.Shell" and the function `sub_468D3a` returns this string.
 ![](https://imgur.com/gallery/15T4XBf)
 
