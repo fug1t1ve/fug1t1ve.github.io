@@ -120,8 +120,6 @@ def VP(bitmap):
     num3 = int.from_bytes(arr1[:4], byteorder='little', signed=True)
     array2 = arr1[4:num3+4]
     return array2
-
-# In main:
 array2 = VP(cropped)
 ```
 
@@ -154,9 +152,7 @@ def search_result(binary_compatibility, opcode):
     arr1 = arr1[:len(binary_compatibility) - 1]
     return arr1
 
-# In main:
 array3 = search_result(array2, "lth")
-# Saving the extracted byte array:
 f = open('final-b','wb')
 for element in array3:
     f.write(element.to_bytes())
