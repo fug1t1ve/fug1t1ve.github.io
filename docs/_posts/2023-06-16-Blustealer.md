@@ -5,9 +5,7 @@ date: 2023-06-16 14:00:00 +5:30
 categories: Malware Analysis
 ---
 
-# BluStealer
-
-## Overview
+# Overview
 
 The malware used here is categorised as a trojan with the label 'trojan.msil/stealer' and family labels 'msil', 'stealer', 'ratx' on VirusTotal. In MalwareBazaar it is indentified as 'BluStealer'.
 
@@ -19,10 +17,7 @@ Source: [VirusTotal](https://www.virustotal.com/gui/file/dafbb2a0e6111947e20d591
 
 `SHA256 hash: dafbb2a0e6111947e20d5916eae5c2a56937dec2c6c4e1843ce29ceefd22f205`
 
-
-
-## Preliminaries
-
+# Part-1: iENI
 ![](https://imgur.com/gallery/akYu7hq)
 PE Detective identifies the executable as a .NET, 32-bit executable. Further Analysis using PEstudio reveals that the name of the binary during development was 'iENI.exe'; however, this can be tampered with. It also has a compiler timestamp `Thu Apr 27 03:12:03 2023`.
 ![](https://imgur.com/gallery/M7la8Pz)
@@ -33,7 +28,6 @@ The resources section reveals that there is a resource named `Gastroenterology.P
 The resource section also reveals that there are few repeating bytes like `PAD`, which indicates that there may be junk data has been added as padding to make the reverse-engineering the binary hard.
 ![](https://imgur.com/gallery/0co9EX6)
 
-## Part-1: iENI
 Loading the file into the [dnSpyEx](https://github.com/dnSpyEx/dnSpy) loads up the different namespace sections of the files. At entry point we see multiple obfuscated function names, one of those obfuscated functions is using `Application.Run()`. This function is used two times in the `main()`, which results it to run two new instances of `frm_Splash` and `frm_Menu`.
 ![](https://imgur.com/gallery/XPn2LYh)
 
@@ -47,7 +41,7 @@ In short, it takes that encrypted hard-coded string and decrypts it using the st
 
 The first two bytes of the byte array indicates that it is a DOS MZ executable.
 
-## Part-2: Pend.dll
+# Part-2: Pend.dll
 
 When analysing the file that consists of the byte array using PEstudio, it shows that it is a DLL file named "Pend.dll". PEstudio also reveals that it uses SmartAssembly .NET obfuscator to obfuscate the file, and that it was compiled on April 26th 2023.
 ![](https://imgur.com/gallery/1JbFjL3)
@@ -65,7 +59,7 @@ Examining the `Xe` method reveals a large byte array which is Gzip decompressed 
 ![](https://imgur.com/gallery/AmrlY8r)
 ![](https://imgur.com/gallery/f8Dweoc)
 
-## Part-3: Cruiser.dll
+# Part-3: Cruiser.dll
 
 On decompressing the Gzip data, another DLL file is revealed. On analysing it using PEstudio, it is revealed that it also utilises the SmartAssembly .NET obfuscator. It also reveals that it had a name 'Cruiser.dll' and that it was compiled on April 10th 2023.
 ![](https://imgur.com/gallery/cjBZvcy)
@@ -79,7 +73,7 @@ The `s6` uses a method 'CasualitySource' with the string_0 and string_1. On anal
 ![](https://imgur.com/gallery/E5kilbT)
 ![](https://imgur.com/gallery/4MpsLkT)
 
-## Part-4: Extracting another DLL
+# Part-4: Extracting another DLL
 
 ![](https://imgur.com/gallery/d8ofXa2)
 On following the `s6` method, it returns a bitmap from the method `Fu`. The `Fu` method uses string_0 and string_2 as the arguments. On analysis, the targeted resource is "Gastroenterology.Properties.Resources.PrVE", which is in the initial binary(iENI).
@@ -161,7 +155,7 @@ f.close()
 
 The byte array returned from `SearchResult` is another binary which is executed.
 
-## Part-5: Discompard.dll
+# Part-5: Discompard.dll
 
 The binary was initially named Discompard.dll. It has a description of "Plant Scientist," and the compiler timestamp is April 27th, 2023. The PEstudio shows that it doesn't use any tooling, i.e., it is not obfuscated. 
 ![](https://imgur.com/gallery/zgRiGaj)
@@ -172,7 +166,7 @@ de4dot suggests opposite, it shows that it uses an unkown obfuscation method.
 On decompiling we see a namespace `TOfEQkKANJxMeS2a9c`, which has a lot of classes, enums, and structs. As the names are all random strings, it is hard to figure out the workflow of the binary. There are few exceptions like `LoadLibraryA` and `GetProcAddress`.
 
 In the `s6` method the binary is loaded dynamically into the memory and within the function `YJ` of class `VP`, the 20th element is accessed followed by the invocation of 29th method.
-```ps
+```
 $pathtodll = "C:\Users\IEUser\Desktop\Win32\blustealer\final.dll"
 Add-Type -Path $pathtodll
 $classtype = [Reflection.Assembly]::LoadFrom($pathtodll).GetTypes()[20]
@@ -185,7 +179,7 @@ The method `TOfEQkKANJxMeS2a9c.kHaSXGF4djgFPmfQAx.nqk5uYnWxJ()` accesses the App
 
 The function names are obfuscated and hard to analyse statically.
 
-### Dynamic Analysis
+## Dynamic Analysis
 
 Preliminaries to debug the Discompard.dll:
 - Load the original malware into dnspy
@@ -214,7 +208,7 @@ The `text3` is then used by four methods:
 - `kHaSXGF4djgFPmfQAx.irt5FtGhEP(text3)` also seems to access the [DirectorySecurity](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.directorysecurity?view=net-7.0) but in this method it can be seen that it is modifying various permissions like Read, ReadAndExecute, Delete, Write, and many more.
 ![](https://imgur.com/gallery/Hgf1dLB)
 - `kHaSXGF4djgFPmfQAx.NA75tJjKiO()` generates a xml file:
-```xml
+```
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
@@ -272,7 +266,7 @@ In short, the above four functions copy the malware into the ApplicationData fol
 The function `TOfEQkKANJxMeS2a9c.XJFGg9hoWsSBpIk5r2.U2PbPKIghF()` returns another binary, which is later injected into a process.
 ![](https://imgur.com/gallery/yFXlPEs)
 
-## Part-6: DL_NATIVE_BOTNET1209
+# Part-6: DL_NATIVE_BOTNET1209
 
 PEstudio shows that:
 ![](https://imgur.com/gallery/ikl26aL)
@@ -286,7 +280,7 @@ PEstudio shows that:
 
 On uploading to Virustotal, it labels it as a `virus.expiro/moiva`. [click-here](https://www.virustotal.com/gui/file/52ba984a39d1a2221a044a79c6043f6c547abac96b074e457e90671b39f83f4b/summary)
 
-### Static Analysis
+## Static Analysis
 
 The malware seems to be storing some suspicious strings like:
 - "CryptDuplicateKey" and "mpRetrieveMultipleCredentials" suggests that the malware is utilising the wincrypt.
@@ -297,7 +291,7 @@ The malware seems to be storing some suspicious strings like:
 - Other strings are random strings or hex-strings, which might be decrypted later in the malware.
 ![](https://imgur.com/gallery/LY24xRl)
 
-### Dynamic Analysis
+## Dynamic Analysis
 
 Process Monitor results:
 - It utilises NTDLL, which contains NT kernel functions.
@@ -387,9 +381,9 @@ In `sub_46A085`:
   - The function then copies the 0x042E0000 to the virtual memory and calls `kernel32.SetThreadContext` and then the thread is resumed
   - The address 0x042E0000 stores a PE file
 
-## Part-7: Stealer
+# Part-7: Stealer
 
-### Retrieved binary
+## Retrieved binary
 Virustotal:
 - The VirusTotal labels the file as a trojan, and this file is flagged malicious only by 21/71 security vendors.
 - MD5 : `01db414e65602506c94c2b583243a60`
@@ -401,7 +395,7 @@ In this case, the binary starts at address 0x009CBD70 and ends at 0x00A2BA70.
 
 This encryption is done in the `sub_469578` function.
 
-### 3.exe
+## 3.exe
 MD5: `52756994e44514f825f435819cb9f4d5`
 The PEstudio reveals that it is a 32-bit executable .NET binary. It also reveals that it was earlier named 3.exe and the manifest name was MyApplication.app.
 ![](https://imgur.com/KmkuYET)
@@ -422,7 +416,7 @@ In the Main() function, resource named 'app' is used with GZipStream and the dec
 
 Set a breakpoint at line 29 of main (In obfuscated binary it is yX3qVQPc7HrPvyJ6nV.cZ6To4JeF1gFLqv7a4.TOsyUfqmE()) and save the array2, which has the assembly.
 
-### ThunderFox
+## ThunderFox
 The PEstudio reveals that the retrieved binary is the ThunderFox malware and that it has a modified compiler stamp. VirusTotal shows that this binary was last analyzed three months ago and labels it as a stealer. The de4dot reveals that it utilizes .NET Reactor.
 
 MD5: d2ec533f8b40a8224d79c87c2291f943
