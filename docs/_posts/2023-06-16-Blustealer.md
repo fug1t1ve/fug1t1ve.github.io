@@ -1,7 +1,7 @@
 ---
 layout: post
 titile: "BluStealer - Malware Analysis"
-date: 2023-06-16 14:30:00 +5:30
+date: 2023-06-16 14:00:00 +5:30
 categories: Malware Analysis
 ---
 
