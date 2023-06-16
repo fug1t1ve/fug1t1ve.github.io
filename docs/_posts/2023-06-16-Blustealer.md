@@ -130,6 +130,7 @@ The `SearchResult` method performs the following actions:
 - The value obtained after bitwise XOR is storred in a new byte array `array`.
 - The last element of the `array` is then removed and byte array is returned.
 - Python implementation of the function:
+
 ```py
 def search_result(binary_compatibility, opcode):
     bytes = codecs.encode(opcode, 'utf-16be')
@@ -166,7 +167,7 @@ de4dot suggests opposite, it shows that it uses an unkown obfuscation method.
 On decompiling we see a namespace `TOfEQkKANJxMeS2a9c`, which has a lot of classes, enums, and structs. As the names are all random strings, it is hard to figure out the workflow of the binary. There are few exceptions like `LoadLibraryA` and `GetProcAddress`.
 
 In the `s6` method the binary is loaded dynamically into the memory and within the function `YJ` of class `VP`, the 20th element is accessed followed by the invocation of 29th method.
-```
+```ps
 $pathtodll = "C:\Users\IEUser\Desktop\Win32\blustealer\final.dll"
 Add-Type -Path $pathtodll
 $classtype = [Reflection.Assembly]::LoadFrom($pathtodll).GetTypes()[20]
@@ -208,7 +209,7 @@ The `text3` is then used by four methods:
 - `kHaSXGF4djgFPmfQAx.irt5FtGhEP(text3)` also seems to access the [DirectorySecurity](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.directorysecurity?view=net-7.0) but in this method it can be seen that it is modifying various permissions like Read, ReadAndExecute, Delete, Write, and many more.
 ![](https://imgur.com/gallery/Hgf1dLB)
 - `kHaSXGF4djgFPmfQAx.NA75tJjKiO()` generates a xml file:
-```
+```xml
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
