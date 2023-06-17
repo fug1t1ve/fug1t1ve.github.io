@@ -28,25 +28,25 @@ PE Detective identifies the executable as a .NET, 32-bit executable. Further Ana
 The resources section reveals that there is a resource named `Gastroenterology.Properties`, which has exceptionally large entropy and high file-ratio. Large entropy indicates that the file is likely to have compressed or encrypted data.
 ![](https://i.imgur.com/pkqGNFZ.png)
 
-The resource section also reveals that there are few repeating bytes like `PAD`, which indicates that there may be junk data has been added as padding to make the reverse-engineering the binary hard.
+The resource section also reveals that there are few repeating bytes like `PAD`, which indicates that there might be junk data added as padding to make the analysis of the binary hard.
 ![](https://i.imgur.com/1WfFwqk.png)
 
-Loading the file into the [dnSpyEx](https://github.com/dnSpyEx/dnSpy) loads up the different namespace sections of the files. At entry point we see multiple obfuscated function names, one of those obfuscated functions is using `Application.Run()`. This function is used two times in the `main()`, which results it to run two new instances of `frm_Splash` and `frm_Menu`.
+Opening the file in [dnSpyEx](https://github.com/dnSpyEx/dnSpy) loads up multiple namespaces of the file. At the entry point, we see multiple obfuscated functions, and one of those obfuscated functions uses `Application.Run()`. This function is called twice in the `main()` method, resulting in the execution of two new instances of `frm_Splash` and `frm_Menu`.
 ![](https://i.imgur.com/bBIcDPO.png)
 
-On analysis of the class `frm_Menu`, it seems to be a decoy class. It acts as a menu to initialize forms like `frm_Sudoku`, `frmJogoMemo`, `frm_Velha`, and more.
+The class `frm_Menu` seems to be a decoy class. It acts as a menu to initialize forms like `frm_Sudoku`, `frmJogoMemo`, `frm_Velha`, and more.
 ![](https://i.imgur.com/ws1DeCf.png)
 
 On the other hand, `frm_Splash` has 29 encrypted strings. On further analysis it shows that these 29 strings are then concatenated behind '4D5' and all the '^' characters are replaced by '00'. The final string is then parsed using `byte.Parse()` and then stored in an array. The byte array is then passed to a function in `Assembly` class. By looking at strings it seems the first function is [`Assembly.load()`](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assembly.load?view=net-7.0) and the second is the [`Assembly.CreateInstance()`](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assembly.createinstance?view=net-7.0).
 
-In short, it takes that encrypted hard-coded string and decrypts it using the steps mentioned above and then parses the string into a byte array and then loads it into the memory and creates an instance. The instance created passes an array object called `PES`, that is defined as a string array consisting of three entries:
+In short, it takes the encrypted hard-coded string, decrypts it using the aforementioned steps, and subsequently parses the string into a byte array. Afterward, it loads the byte array into memory and creates an instance. The instance created passes an array object called `PES`, that is defined as a string array consisting of three entries:
 ![](https://i.imgur.com/1b7AQgR.png)
 
 The first two bytes of the byte array indicates that it is a DOS MZ executable.
 
 # Part-2: Pend.dll
 
-When analysing the file that consists of the byte array using PEstudio, it shows that it is a DLL file named "Pend.dll". PEstudio also reveals that it uses SmartAssembly .NET obfuscator to obfuscate the file, and that it was compiled on April 26th 2023.
+Analyzing the saved bytes using PEstudio reveals that it is a DLL file named "Pend.dll." PEstudio also reveals that it uses the SmartAssembly .NET obfuscator to obfuscate the file and that it was compiled on April 26th, 2023.
 ![](https://i.imgur.com/Z1eLFq5.png)
 
 The [de4dot](https://github.com/de4dot/de4dot) is a commonly used tool to deobfuscate the SmartAssembly .NET obfuscated binaries.
@@ -65,12 +65,12 @@ Examining the `Xe` method reveals a large byte array which is Gzip decompressed 
 On decompressing the Gzip data, another DLL file is revealed. On analysing it using PEstudio, it is revealed that it also utilises the SmartAssembly .NET obfuscator. It also reveals that it had a name 'Cruiser.dll' and that it was compiled on April 10th 2023.
 ![](https://i.imgur.com/NOxeDiY.png)
 
-Repeating the same steps with de4dot gives us the deobfuscated binary. On deompiling, it reveals a namespace 'Munoz', which has a class 'Himentater'. If you recall from last section that int the `s6` method it takes the returned value of the `Xe` method of type 'Munoz.Himentater'.
+Repeating the same steps with de4dot gives us the deobfuscated binary. Upon decompiling, it reveals a namespace 'Munoz' that contains a class named 'Himentater'. If you recall from the last section, in the 's6' method, it takes the returned value of the 'Xe' method, which is of type 'Munoz.Himentater'.
 [click-here](#Munoz_Himentater)
 
 ![](https://i.imgur.com/eGDNMp0.png)
 
-The `s6` uses a method 'CasualitySource' with the string_0 and string_1. On analysing the `CasualitySouce` method, it reveals that it converts hex given to its raw ASCII format using `smethod_1`. Based on this string_0 is "PrVE" and string_1 is "lth".
+The `s6` uses a method `CasualitySource` with the string_0 and string_1. On analysing the `CasualitySouce` method, it reveals that it converts hex string to its raw ASCII format using `smethod_1`. Based on this string_0 is "PrVE" and string_1 is "lth".
 ![](https://i.imgur.com/hwYyx9m.png)
 
 ![](https://i.imgur.com/NagDL44.png)
@@ -98,10 +98,10 @@ Now for extracting the bitmap follow these steps:
 The cropped bitmap is then passed into a method `VP`:
 ![](https://i.imgur.com/9wnPk9U.png)
 
-- It extracts the ARGB pixel values from the bitmap and store them in a byte array in little endian format
-- It takes the first 4 bytes and convert them to int32
-- Then it initialises a byte array with a size of the int32 generated
-- It copies the byte array (consisting of the RGBA pixel values) from the 5th byte into the new byte array
+- It extracts the ARGB pixel values from the bitmap and store them in a byte array in little endian format.
+- It takes the first 4 bytes and convert them to int32.
+- Then it initialises a byte array with a size of the int32 generated.
+- It copies the byte array (consisting of the RGBA pixel values) from the 5th byte into the new byte array.
 - Python implementation of the function `VP`:
   ```py
   def VP(bitmap):
@@ -121,8 +121,7 @@ The cropped bitmap is then passed into a method `VP`:
   array2 = VP(cropped)
   ```
 
-The byte array extracted from `VP` method is then fed to `SearchResult`.
-The `SearchResult` function is in the `cruiser.dll` under namespace `Munoz` and class `Himentater`.
+The byte array extracted from `VP` method is then used by the `SearchResult` function. The `SearchResult` function is in the `cruiser.dll` under namespace `Munoz` and class `Himentater`.
 ![](https://i.imgur.com/Emdbw9F.png)
 
 The `SearchResult` method performs the following actions:
@@ -165,7 +164,7 @@ The byte array returned from `SearchResult` is another binary which is executed.
 The binary was initially named Discompard.dll. It has a description of "Plant Scientist," and the compiler timestamp is April 27th, 2023. The PEstudio shows that it doesn't use any tooling, i.e., it is not obfuscated. 
 ![](https://i.imgur.com/XwCFuBD.png)
 
-de4dot suggests opposite, it shows that it uses an unkown obfuscation method.
+de4dot suggests the opposite, it shows that the file uses an unknown obfuscation method.
 ![](https://i.imgur.com/GBZKPbs.png)
 
 On decompiling we see a namespace `TOfEQkKANJxMeS2a9c`, which has a lot of classes, enums, and structs. As the names are all random strings, it is hard to figure out the workflow of the binary. There are few exceptions like `LoadLibraryA` and `GetProcAddress`.
@@ -191,7 +190,7 @@ Preliminaries to debug the Discompard.dll:
 - Set a breakpoint in `System.Reflection.MethodBase.Invoke()` in mscorlib.dll
 ![](https://i.imgur.com/lXpJPiy.png)
 
-- Now, keep hitting the breakpoint and stepping out until you see that you have reached the method `TOfEQkKANJxMeS2a9c.l9KiV7K6JPwQWv7jdq0.bMBAzEBKcC()`. (Before reaching this method, when you step out, it doesn't actually step out and hits the breakpoint again).
+- Now, keep hitting the breakpoint and stepping out until you see that you have reached the method `TOfEQkKANJxMeS2a9c.l9KiV7K6JPwQWv7jdq0.bMBAzEBKcC()`.
 ![](https://i.imgur.com/2Nwq0qM.png)
 
 - The above method makes the dnspy to load the Discompard.dll, which you can access using Assembly explorer on the left.
@@ -208,7 +207,7 @@ The `text3` is then used by four methods:
 
 - `kHaSXGF4djgFPmfQAx.hUX5m2eiwn(text3)` accesses the [DirectorySecurity](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.directorysecurity?view=net-7.0) class, which indicates it is modifying the permissions of the copied malware
   ![](https://i.imgur.com/LHN9OY3.png)
-- `nWOObEDFiUid9AkLujp.lsLX4PlyF(text, text3, nWOObEDFiUid9AkLujp.sCDD0X6OXV)` confirms the suspicion as it uses System.IO.file.copy()
+- `nWOObEDFiUid9AkLujp.lsLX4PlyF(text, text3, nWOObEDFiUid9AkLujp.sCDD0X6OXV)` uses `System.IO.file.copy()` to copy the original malware to the "\AppData\Roaming" folder.
   ![](https://i.imgur.com/XolABdr.png)
 - `kHaSXGF4djgFPmfQAx.irt5FtGhEP(text3)` also seems to access the [DirectorySecurity](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.directorysecurity?view=net-7.0) but in this method it can be seen that it is modifying various permissions like Read, ReadAndExecute, Delete, Write, and many more.
   ![](https://i.imgur.com/Rqmkb1k.png)
@@ -278,16 +277,14 @@ The function `TOfEQkKANJxMeS2a9c.XJFGg9hoWsSBpIk5r2.U2PbPKIghF()` returns anothe
 PEstudio shows that:
 ![](https://i.imgur.com/SoGObwz.png)
 
-- It uses Visual Studio MASM and the file-type executable, which implies that it is not a .NET binary
-- description is cuspated
-- It was compiled on 25th Oct, 2022
+- It uses Visual Studio MASM and the file-type is executable, which implies that it is not a .NET binary.
+- The description is "cuspated".
+- It was compiled on 25th Oct, 2022.
 - SHA256 - 52BA984A39D1A2221A044A79C6043F6C547ABAC96B074E457E90671B39F83F4B
--  It seems to have a URL `https://api.telegram.org/bot`
+-  It seems to have a URL 'https://api.telegram.org/bot', indicating that it utilizes a Telegram bot in later stages.
 ![](https://i.imgur.com/x90PIsW.png)
 
 On uploading to Virustotal, it labels it as a `virus.expiro/moiva`. [click-here](https://www.virustotal.com/gui/file/52ba984a39d1a2221a044a79c6043f6c547abac96b074e457e90671b39f83f4b/summary)
-
-## Static Analysis
 
 The malware seems to be storing some suspicious strings like:
 - "CryptDuplicateKey" and "mpRetrieveMultipleCredentials" suggests that the malware is utilising the wincrypt.
@@ -298,9 +295,8 @@ The malware seems to be storing some suspicious strings like:
 - Other strings are random strings or hex-strings, which might be decrypted later in the malware.
 ![](https://i.imgur.com/u3EKGPx.png)
 
-## Dynamic Analysis
-
 Process Monitor results:
+![](https://i.imgur.com/o67ozJl.png)
 - It utilises NTDLL, which contains NT kernel functions.
 - It uses registry to perform operations like RegQueryValue, RegSetInfoKey, and RegQueryKey.
 - One noticiable registry was `Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings`
@@ -308,15 +304,15 @@ Process Monitor results:
 - It also contacts to `72.5.161.12:http`, `mail410.us2.mcsv.net:http`, `206.191.152.58:http`, `63.251.106.25:http`, `167.99.35.88:http` through TCP.
 - Most of these TCP connections are preceded by various queries to explorer.exe like QueryStandardInformationFile, QueryBasicInformationFile, QueryDirectory, ReadFile, CreateFile
 - It also seems to be using multithreading to perform all these actions
-![](https://i.imgur.com/o67ozJl.png)
 
 Debugging:
+
 The `sub_4fb000` seems to be modifying a huge array:
 ![](https://i.imgur.com/hezUFWQ.png)
 
 The function `sub_4b79b8` is responsible for loading DLLs such as NTDLL and Kernel32 into the memory. 
 
-`sub_4640c4` begins by invoking five functions from the MSVBVM60 library, which are specific to the VB6 runtime and are likely responsible for handling various aspects of the Visual Basic 6.0 environment. `sub_4640c4` proceeds to call another function called `sub_468341`.
+`sub_4640c4` begins by invoking five functions from the MSVBVM60 library, which are specific to the VB6 runtime and are likely responsible for handling various aspects of the Visual Basic 6.0 environment. `sub_4640c4` proceeds to call another function named `sub_468341`.
 
 The `sub_468341` function has few suspicious DLL calls:
 ![](https://i.imgur.com/UiAbEH0.png)
@@ -331,7 +327,7 @@ The `sub_468341` function has few suspicious DLL calls:
 The path "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates" after few string operations is returned by the `sub_468341`:
 ![](https://i.imgur.com/VRSQ6xC.png)
 
-Few more string operations are performed on the returned path string. The modified path string is "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Template\" (concatenated '\').
+Few more string operations are performed on the returned path string. The modified path string is "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Template\".
 ![](https://i.imgur.com/HdzE590.png)
 
 After few more function calls from the MSVBVM60 library, the `sub_46869E` function is called. 
@@ -362,33 +358,34 @@ In `sub_46869E`:
 ![](https://i.imgur.com/Xk3AqzT.png)
 
 Following the `sub_46869E` call, there are a few checks that are followed by the function `sub_46A085`.
+
 In `sub_46A085`:
 - `sub_468341` [function explained above](#L324) generates and returns the path "C:\windows".
 ![](https://i.imgur.com/Pe3Q6fK.png)
 - After few string concatenation and few other operations, string is modified into "C:\windows\Microsoft.NET\Framework\v4.0.30319".
 - This string is passed to the `rtcDir` function, which returns the string of file or directory name in the directory.
 - After a comparison, it performs the same set of instructions until the string concatenation, where it concatenates "\Microsoft.NET\Framework\v4.0.30319\AppLaunch.exe" this time, resulting in "C:\windows\Microsoft.NET\Framework\v4.0.30319\AppLaunch.exe".
-- The `sub_46A275` calls the function `sub_469578`, which has multiple DLL function calls
+- The `sub_46A275` calls the function `sub_469578`, which has multiple DLL function calls.
 - In `sub_469578`:
   - The `sub_462000` calls RtlMoveMemory, which copies the contents of a source memory block to a destination memory block.
-  - At start `sub_462000` function is called 2 times
+  - At start `sub_462000` function is called 2 times.
   ![](https://i.imgur.com/X2A3yJX.png)
-  - After string concatenation we get the path "C:\Windows\Microsoft.NET\Framework\v4.0.30319\AppLaunch.exe "
-  - The `sub_4625C8` calls `kernel32.CreateProcessA` with "C:\Windows\Microsoft.NET\Framework\v4.0.30319\AppLaunch.exe " as argument
-  - The `sub_462614` calls `kernel32.GetThreadContext` with the applaunch path mentioned above as argument
+  - After string concatenation we get the path "C:\Windows\Microsoft.NET\Framework\v4.0.30319\AppLaunch.exe ".
+  - The `sub_4625C8` calls `kernel32.CreateProcessA` with "C:\Windows\Microsoft.NET\Framework\v4.0.30319\AppLaunch.exe " as argument.
+  - The `sub_462614` calls `kernel32.GetThreadContext` with the applaunch path mentioned above as argument.
   ![](https://i.imgur.com/wsr9lKI.png)
-  - The `sub_4626A4` calls `kernel32.VirtualAllocEx` with 0x41c as hProcess
-  - The `sub_46265C` calls `kernel32.VirtualAlloc` and allocates a virtual memory of size 0x66000
-  - MZ headers are copied to addr 0x42E0000 using `sub_462000`
+  - The `sub_4626A4` calls `kernel32.VirtualAllocEx` with 0x41c as hProcess.
+  - The `sub_46265C` calls `kernel32.VirtualAlloc` and allocates a virtual memory of size 0x66000.
+  - MZ headers are copied to addr 0x42E0000 using `sub_462000`.
   - There are 2 loops in the function
   - 1st loop copies:
     - .text section to the address 0x042E0000 + X
     - .sdata at 0x4340000
     - .rsrc to the address 0x04342000
     - .reloc at 0x04344000
-  - 2nd loop modifies few bytes in the memory 0x42E0000
-  - The function then copies the 0x042E0000 to the virtual memory and calls `kernel32.SetThreadContext` and then the thread is resumed
-  - The address 0x042E0000 stores a PE file
+  - 2nd loop modifies few bytes in the memory 0x42E0000.
+  - The function then copies the 0x042E0000 to the virtual memory and calls `kernel32.SetThreadContext` and then the thread is resumed.
+  - The address 0x042E0000 stores a PE file.
 
 # Part-7: Stealer
 
@@ -399,7 +396,7 @@ Virustotal:
 - It is a PE32 executable Mono/.Net assembly
 - It shows Dot Net Assembly name : 3.exe and CLR version v4.0.30319, which is the version of framework previous binary uses to execute this binary.
 
-On analysing the binary using de4dot, it shows that it is not a .NET binary. The binary is obfuscated/encrypted when loaded into AppLaunch.exe. To obtain the non-obfuscated binary, set a breakpoint at address 0x469946. At this address, the pointer to the original binary is stored in eax and pushed to the function VarPtr, which returns the pointer.
+On analysing the binary using de4dot, it shows that it is not a .NET binary. The binary is obfuscated/encrypted when loaded into AppLaunch.exe. To obtain the non-obfuscated binary, set a breakpoint at address 0x469946 of previous binary. At this address, the pointer to the original binary is stored in eax and pushed to the function VarPtr, which returns the pointer.
 In this case, the binary starts at address 0x009CBD70 and ends at 0x00A2BA70.
 
 This encryption is done in the `sub_469578` function.
