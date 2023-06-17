@@ -417,7 +417,7 @@ PE studio reveals a manifest which requests the level `asInvoker`. It gives the 
 On anlalysing the original binary with de4dot reveals it uses .NET Reactor to obfuscate.
 ![](https://i.imgur.com/NPOzjTl.png)
 
-In the Main() function, resource named 'app' is used with GZipStream and the decompressed bytes are loaded into the Assembly and then invoked.
+In the main() function, resource named 'app' is used with GZipStream and the decompressed bytes are loaded into the Assembly and then invoked.
 ![](https://i.imgur.com/3VwrsiP.png)
 
 Set a breakpoint at line 29 of main (In obfuscated binary it is yX3qVQPc7HrPvyJ6nV.cZ6To4JeF1gFLqv7a4.TOsyUfqmE()) and save the array2, which has the assembly.
@@ -433,7 +433,7 @@ On decompilation using dnnpy, we see that there are multiple suspicious namespac
 The main function is defined in Class33 of an unnamed namespace ({}-). The main function uses try and catch, which helps the malware in case any exception occurs. It executes an empty block of code, thus doing nothing, not even exiting the program.
 
 Main function:
-- Starts by defining 3 null strings `text`, `text2`, and `text3`
+- Starts by defining 3 null strings `text`, `text2`, and `text3`.
 - It opens the subkey 'Software\VB and VBA Program Settings\Settings' under the current user's registry hive and stores the values 'GetCOOKIESreg', 'GetCONTACTSreg', and 'GetMessagesreg' in text, text2, and text3 variables, respectively.
 ![](https://i.imgur.com/VHRRMzj.png)
 - It calls `Chromium.Grab()`, which is defined in namespace `ChromeRecovery`:
@@ -465,15 +465,15 @@ Main function:
   - It iterates through all the subkeys and retrieves the correspondingg hostname, username, and password.
   - The password is decrypted using `WinSCPDecrypt` class.
   ![](https://i.imgur.com/VlZCwmn.png)
-- It appends all the data returned from methods called above to the `Class33.string_0`
+- It appends all the data returned from methods called above to the `Class33.string_0`.
 - It calls `Class33.smethod_4`, which is responsible for extracting credentials from all Firefox-related brosers:
-  - It stores and interates through browser name and corresponding paths
+  - It stores and interates through browser name and corresponding paths.
   - If the "Profiles" directory exists, it iterates through each profile and retrieves the path of `logins.json`, `key4.db`, `signons.sqlite`, and `key3.db` for each.
   - If the browser uses `logins.json` and `key4.db`, it calls `Class32.smethod_0`:
     - Uses the query "SELECT item1,item2 FROM metadata WHERE id = 'password';" to get GlobalSalt and ciphertext+EntrySalt.
-    - The second value is parsed through Asn1Der.Parse() and converted to string to detect the encryption algorithm used
+    - The second value is parsed through Asn1Der.Parse() and converted to string to detect the encryption algorithm used.
     - The encryption algorithm can be detected by checking for two strings: "2A864886F70D010C050103" for the first one, which represents "HMACSHA1", and "2A864886F70D01050D" for the second one, which represents "3DES".
-    - It then checks if the master password is ""
+    - It then checks if the master password is "".
     - Then it uses the query "SELECT a11,a102 FROM nssPrivate;", to get ciphertext, EntrySalt, and partIV after parsing it.
     - Ciphertext, EntrySalt, and PartIV, along with the global salt used earlier for the master password check, are used to decrypt using MozillaPBE(), which returns the key.
     - The key is used in `Class32.smethod_1` in conjunction with the `logins.json` file to decrypt the DESCBC-encrypted username and password.
@@ -485,17 +485,17 @@ Main function:
     - The decrypted value is then returned and utilized in `Class32.smethod_1` as the key for decrypting the DESCBC-encrypted username and password stored in `logins.json`.
     - The URL, Username, and Password, along with Application name is stored in `Class33.string_0`.
   - If the browser uses `signons.sqlite` and `key3.db`:
-    - It calls the `Class30.smethod_0`, which performs the same set of operations as above to get the DESCBC key
+    - It calls the `Class30.smethod_0`, which performs the same set of operations as above to get the DESCBC key.
     - The hostname, encrypted username, and encrypted password are retrieved from `signons.sqlite` using sqliteHandler.
     - For each row, it decrypts the username and password and then stores the hostname, username, password, along with the application name, in `Class33.string_0`.
-- The `Class33.string_0` is saved into  the "C:\Users\IEUser\Templates\credentials.txt"
+- The `Class33.string_0` is saved into  the "C:\Users\IEUser\Templates\credentials.txt" file.
 ![](https://i.imgur.com/u2WkAzI.png)
-- The function then saves the Cookies from all browsers into "C:\Users\IEUser\Templates\Cookies{browser_name}.txt"
+- The function then saves the Cookies from all browsers into "C:\Users\IEUser\Templates\Cookies{browser_name}.txt" :
   - For firefox-related browsers the cookies are stored in a sqlite db named `cookies.sqlite` for each profile inside `Browser path + "\Profiles"`.
   - For other browsers the cookies are stored in `Browser User Data path + "\Cookies"`, which is also a sqlite db.
   - The difference is that in other browsers, the raw data is encrypted, and the Chromium master key is used to decrypt it. In contrast, in Firefox-related browsers, the data is stored in plaintext.
-- The function then saves the Contacts from all firefox-related browsers into "C:\Users\IEUser\Templates\Contacts{browser_name}.txt"
+- The function then saves the Contacts from all firefox-related browsers into "C:\Users\IEUser\Templates\Contacts{browser_name}.txt" :
 ![](https://i.imgur.com/Bl89Ua7.png)
   - In the same function, it saves all the MailMaster data and contacts in "C:\Users\IEUser\Templates\ContactsMailMaster.txt"
-- The function then saves the Messages from all the firefox-related browsers into "C:\Users\IEUser\Templates\Messages{browser_name}.txt"
+- The function then saves the Messages from all the firefox-related browsers into "C:\Users\IEUser\Templates\Messages{browser_name}.txt" :
 ![](https://i.imgur.com/6JpFf9v.png)
