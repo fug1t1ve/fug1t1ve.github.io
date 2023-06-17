@@ -2,7 +2,7 @@
 layout: post
 titile: "BluStealer - Malware Analysis"
 date: 2023-06-16 14:00:00 +5:30
-categories: Malware Analysis
+categories: Malware_Analysis
 ---
 
 Detailed Analysis of Blustealer malware
