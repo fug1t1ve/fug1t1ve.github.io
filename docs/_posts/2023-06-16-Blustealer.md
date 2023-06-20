@@ -493,7 +493,7 @@ Main function:
 - The function then saves the Cookies from all browsers into "C:\Users\IEUser\Templates\Cookies{browser_name}.txt" :
   - For firefox-related browsers the cookies are stored in a sqlite db named `cookies.sqlite` for each profile inside `Browser path + "\Profiles"`.
   - For other browsers the cookies are stored in `Browser User Data path + "\Cookies"`, which is also a sqlite db.
-  - The difference is that in other browsers, the raw data is encrypted, and the Chromium master key is used to decrypt it. In contrast, in Firefox-related browsers, the data is stored in plaintext.
+  - The difference is that in other browsers, the raw data is encrypted, and the Chromium master key is used to decrypt it and in Firefox-related browsers, the data is stored in plaintext.
 - The function then saves the Contacts from all firefox-related browsers into "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\Contacts{browser_name}.txt" :
 ![](https://i.imgur.com/Bl89Ua7.png)
   - In the same function, it saves all the MailMaster data and contacts in "C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Templates\ContactsMailMaster.txt"
